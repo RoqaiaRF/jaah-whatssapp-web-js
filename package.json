@@ -1,0 +1,17 @@
+{
+  "name": "whatssapp-sender-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Roqaia Alrfou",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "ioredis": "^5.2.3",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.17.1"
+  }
+}

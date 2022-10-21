@@ -1,0 +1,7 @@
+node_modules/
+build/
+logs/
+.env
+
+src/app/.notes
+image/
