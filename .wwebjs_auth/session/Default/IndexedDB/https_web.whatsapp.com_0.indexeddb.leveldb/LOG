@@ -1,9 +1,0 @@
-2022/10/21-22:24:58.912 2785 Reusing MANIFEST /home/roro/Desktop/NodeJs learning projects/whatssapp-sender-js/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2022/10/21-22:24:58.912 2785 Recovering log #62
-2022/10/21-22:24:58.923 2785 Reusing old log /home/roro/Desktop/NodeJs learning projects/whatssapp-sender-js/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000062.log 
-2022/10/21-22:39:16.822 3317 Compacting 1@1 + 1@2 files
-2022/10/21-22:39:16.909 3317 Generated table #65@1: 11151 keys, 483711 bytes
-2022/10/21-22:39:16.909 3317 Compacted 1@1 + 1@2 files => 483711 bytes
-2022/10/21-22:39:17.011 3317 compacted to: files[ 0 0 1 0 0 0 0 ]
-2022/10/21-22:39:17.012 3317 Delete type=2 #60
-2022/10/21-22:39:17.012 3317 Delete type=2 #63
