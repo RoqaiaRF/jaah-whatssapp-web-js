@@ -4,4 +4,4 @@ logs/
 .env
 
 src/app/.notes
-image/
+.wwebjs_auth/
