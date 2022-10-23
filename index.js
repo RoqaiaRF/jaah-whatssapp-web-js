@@ -1,53 +1,40 @@
-const qrcode = require("qrcode-terminal");
+const express = require("express");
+const bodyParser = require("body-parser");
+const indexRouter = require("./src/routes");
 
-const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
-
-const media = MessageMedia.fromFilePath(
-  "/home/roro/Desktop/NodeJs learning projects/whatssapp-sender-js/image/cv.pdf"
+// Define the express app
+const app = express();
+var cors = require("cors");
+app.use(
+  cors({
+    allowedHeaders: ["authorization", "Content-Type", "X-Requested-With"], // you can change the headers
+    exposedHeaders: ["authorization", "X-Requested-With"], // you can change the headers
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+  })
 );
 
-const client = new Client({
-  authStrategy: new LocalAuth()
+const helmet = require("helmet");
+const morgan = require("morgan");
+
+
+//Here we are configuring express to use body-parser as middle-ware.
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// using bodyParser to parse JSON bodies into JS objects
+app.use(bodyParser.json());
+
+// adding Helmet to enhance your Rest API's security
+app.use(helmet());
+
+// enabling CORS for all requests
+app.use("/", indexRouter);
+
+// adding morgan to log HTTP requests
+app.use(morgan("combined"));
+
+// starting the server
+app.listen(8080, () => {
+  console.log(`Example app listening at http://localhost:8080`);
 });
-
-client.on("qr", (qr) => {
-  qrcode.generate(qr, { small: true });
-});
-
-client.on("ready", () => {
-  console.log("Client is ready!");
-});
-
-
-client.on('authenticated', (session) => {    
-
-  // Save the session object however you prefer.
-  // Convert it to json, save it to a file, store it in a database...
-});
-
-
-client.on('auth_failure', msg => {
-  // Fired if session restore was unsuccessful
-  console.error('AUTHENTICATION FAILURE', msg);
-});
-
-
-/* ارسال رسائل ميديا*/
-// client.on('ready', async() => {
-//     await client.sendMessage("962788600975@c.us", media)
-//  })
-client.initialize();
-console.log("Sucessfully initialized");
-
-
-
-/**طباعه الرسالة المرسلة الي */
-// client.on('message', message => {
-// 	console.log(message);
-// });
-
-/** الرد على رسالة قادمة */
-// client.on("message", async (msg) => {
-//   const chat = await msg.getChat();
-//   await chat.sendMessage(media);
-// });
