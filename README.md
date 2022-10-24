@@ -4,15 +4,16 @@
 
 Sample request:
 
-curl -X POST http://localhost:8080/send-message \
+```curl -X POST http://localhost:8080/send-message \
   
 {
       "number": "962799849386",
       "message": " Hey, whats'up ? Good morning :)"
 }
+```
 Sample response:
 
-{
+```{
     "status": true,
     "response": {
         "_data": {
@@ -89,3 +90,4 @@ Sample response:
         "isGif": false
     }
 }
+```

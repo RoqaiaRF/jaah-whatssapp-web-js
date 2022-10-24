@@ -4,6 +4,14 @@ const { MessageMedia } = require('whatsapp-web.js');
 const { phoneNumberFormatter } = require('../.././helpers/formatter');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require("qrcode-terminal");
+const socketIO = require("socket.io");
+
+const http = require("http");
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
+const axios = require('axios');
 
 const client = new Client({
   restartOnAuthFail: true,
@@ -24,11 +32,15 @@ const client = new Client({
 });
 
 
-
-
 const initializeWhatssAppWeb = () => {
- 
   client.initialize();
+  console.log("initialized successfully");
+
+  //TODO: DELETE THIS WHEN RUN SOCKET
+  client.on("qr", (qr) => {
+    qrcode.generate(qr, { small: true });
+  });
+  //^--------------------------------------
 
   // Socket IO
   io.on("connection", function (socket) {
@@ -52,11 +64,11 @@ const initializeWhatssAppWeb = () => {
       socket.emit("message", "Whatsapp is authenticated!");
       console.log("AUTHENTICATED");
     });
-/*
+
     client.on("auth_failure", function (session) {
       socket.emit("message", "Auth failure, restarting...");
     });
-*/
+
     client.on("disconnected", (reason) => {
       socket.emit("message", "Whatsapp is disconnected!");
       client.destroy();
@@ -65,13 +77,12 @@ const initializeWhatssAppWeb = () => {
   });
 };
 
-
-
 // Send media
 router.post('/', async (req, res) => {
     const number = phoneNumberFormatter(req.body.number);
     const caption = req.body.caption;
     const fileUrl = req.body.file;
+    console.log("number: " + number + " caption: " + caption)
   
     let mimetype;
     const attachment = await axios.get(fileUrl, {
@@ -99,4 +110,4 @@ router.post('/', async (req, res) => {
     });
   });
   
-  module.exports = router
+  module.exports = router;

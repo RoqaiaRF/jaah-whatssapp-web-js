@@ -32,6 +32,8 @@ const client = new Client({
 
 const initializeWhatssAppWeb = () => {
   client.initialize();
+  console.log("initialized successfully");
+
   //TODO: DELETE THIS WHEN RUN SOCKET
   client.on("qr", (qr) => {
     qrcode.generate(qr, { small: true });
