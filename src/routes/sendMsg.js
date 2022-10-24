@@ -56,11 +56,11 @@ const initializeWhatssAppWeb = () => {
       socket.emit("message", "Whatsapp is authenticated!");
       console.log("AUTHENTICATED");
     });
-
+/*
     client.on("auth_failure", function (session) {
       socket.emit("message", "Auth failure, restarting...");
     });
-
+*/
     client.on("disconnected", (reason) => {
       socket.emit("message", "Whatsapp is disconnected!");
       client.destroy();
@@ -87,7 +87,7 @@ router.post('/', [
     });
   }
 // initialize the application
-  initializeWhatssAppWeb();
+   initializeWhatssAppWeb();
 
   const number = phoneNumberFormatter(req.body.number);
   const message = req.body.message;
@@ -101,13 +101,8 @@ router.post('/', [
   //     message: 'The number is not registered'
   //   });
   // }
-  client.on("qr", (qr) => {
-    qrcode.generate(qr, { small: true });
-    console.log("qr")
-  });
-  
   client.on('ready', () => {
-    client.sendMessage(number, message).then(response => {
+    client.sendMessage("962799849386", "message").then(response => {
       res.status(200).json({
         status: true,
         response: response
