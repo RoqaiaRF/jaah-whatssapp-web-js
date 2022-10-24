@@ -1,13 +1,13 @@
 var express = require("express");
 var router = express.Router();
-// const {initializeWhatssAppWeb} = require(".././services")
-const { body, validationResult } = require('express-validator');
-const { phoneNumberFormatter } = require('../.././helpers/formatter');
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require("qrcode-terminal");
-const socketIO = require('socket.io');
 
-const http = require('http');
+const { body, validationResult } = require("express-validator");
+const { phoneNumberFormatter } = require("../.././helpers/formatter");
+const { Client, LocalAuth } = require("whatsapp-web.js");
+const qrcode = require("qrcode-terminal");
+const socketIO = require("socket.io");
+
+const http = require("http");
 
 const app = express();
 const server = http.createServer(app);
@@ -17,22 +17,26 @@ const client = new Client({
   puppeteer: {
     headless: true,
     args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process', // <- this one doesn't works in Windows
-      '--disable-gpu'
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-accelerated-2d-canvas",
+      "--no-first-run",
+      "--no-zygote",
+      "--single-process", // <- this one doesn't works in Windows
+      "--disable-gpu",
     ],
   },
-  authStrategy: new LocalAuth()
+  authStrategy: new LocalAuth(),
 });
 
 const initializeWhatssAppWeb = () => {
- 
   client.initialize();
+  //TODO: DELETE THIS WHEN RUN SOCKET
+  client.on("qr", (qr) => {
+    qrcode.generate(qr, { small: true });
+  });
+  //^--------------------------------------
 
   // Socket IO
   io.on("connection", function (socket) {
@@ -56,11 +60,11 @@ const initializeWhatssAppWeb = () => {
       socket.emit("message", "Whatsapp is authenticated!");
       console.log("AUTHENTICATED");
     });
-/*
+
     client.on("auth_failure", function (session) {
       socket.emit("message", "Auth failure, restarting...");
     });
-*/
+
     client.on("disconnected", (reason) => {
       socket.emit("message", "Whatsapp is disconnected!");
       client.destroy();
@@ -70,56 +74,47 @@ const initializeWhatssAppWeb = () => {
 };
 
 // Send message
-router.post('/', [
-  body('number').notEmpty(),
-  body('message').notEmpty(),
-], async (req, res) => {
-  const errors = validationResult(req).formatWith(({
-    msg
-  }) => {
-    return msg;
-  });
+router.post(
+  "/",
+  [body("number").notEmpty(), body("message").notEmpty()],
+  async (req, res) => {
+    const errors = validationResult(req).formatWith(({ msg }) => {
+      return msg;
+    });
 
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      status: false,
-      message: errors.mapped()
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        status: false,
+        message: errors.mapped(),
+      });
+    }
+    // initialize the application
+    initializeWhatssAppWeb();
+
+    const number = phoneNumberFormatter(req.body.number);
+    const message = req.body.message;
+
+    console.log(`number: ${number}, message: ${message}`);
+
+    client.on("ready", () => {
+      client
+        .sendMessage(number, message)
+        .then((response) => {
+          res.status(200).json({
+            status: true,
+            response: response,
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            status: false,
+            response: err,
+          });
+          console.log(err);
+        });
     });
   }
-// initialize the application
-   initializeWhatssAppWeb();
-
-  const number = phoneNumberFormatter(req.body.number);
-  const message = req.body.message;
-
-  // const isRegisteredNumber = await checkRegisteredNumber(number);
-  console.log(`number: ${number}, message: ${message}`);
-
-  // if (!isRegisteredNumber) {
-  //   return res.status(422).json({
-  //     status: false,
-  //     message: 'The number is not registered'
-  //   });
-  // }
-  client.on('ready', () => {
-    client.sendMessage("962799849386", "message").then(response => {
-      res.status(200).json({
-        status: true,
-        response: response
-      });
-    }).catch(err => {
-      res.status(500).json({
-        status: false,
-        response: err
-      });
-      console.log(err)
-    });
-    })
-
-    client.initialize();
-    console.log("Sucessfully initialized");
-    
-});
+);
 
 module.exports = router;
 
@@ -127,7 +122,7 @@ module.exports = router;
   body example = 
     {
       number: 962799849386,
-      message: "the number is not registered"
+      message: "Hello, world "
     }
   
  */

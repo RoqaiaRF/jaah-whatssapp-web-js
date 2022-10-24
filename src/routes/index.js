@@ -6,7 +6,7 @@ const sendMsg = require("./sendMsg");
 //TODO: USE JWT AUTHENTICATION
 
 
-router.use("/sendmedia", sendMedia);
-router.use("/sendmsg", sendMsg);
+router.use("/send-media", sendMedia);
+router.use("/send-message", sendMsg);
 
 module.exports = router;
