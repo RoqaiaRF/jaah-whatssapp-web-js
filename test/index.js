@@ -3,7 +3,7 @@ const qrcode = require("qrcode-terminal");
 const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 
 const media = MessageMedia.fromFilePath(
-  "/home/roro/Desktop/NodeJs learning projects/whatssapp-sender-js/image/cv.pdf"
+  "/home/roro/Desktop/jaah/jaah-whatssapp-web-js/test/sample.pdf"
 );
 
 const client = new Client({
@@ -18,6 +18,12 @@ client.on("ready", () => {
   console.log("Client is ready!");
 });
 
+const isRegisteredNumber = async ()=>{
+  return await client.isRegisteredUser("962123456789@c.us");
+  
+}  
+
+console.log(isRegisteredNumber());
 
 client.on('authenticated', (session) => {    
 

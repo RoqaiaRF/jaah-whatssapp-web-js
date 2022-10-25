@@ -7,13 +7,13 @@ const REDIS_URL = process.env.REDIS_URL;
 const client = new Redis(REDIS_URL);
 
 //store data to redis as String
-const setUserVars = async (sender_id, variable, value) => {
-  await client.set(`${sender_id}:${variable}`, value, "EX", 900);
+const setUserVars = async (sender_id, value) => {
+  await client.set(`${sender_id}`, value);
 };
 
 //get the stored data from the redis session
-const getUserVars = async (sender_id, variable) => {
-  const myKeyValue = await client.get(`${sender_id}:${variable}`);
+const getUserVars = async (sender_id) => {
+  const myKeyValue = await client.get(`${sender_id}`);
 
   if (myKeyValue) {
     return myKeyValue;
@@ -31,6 +31,12 @@ const getUserVars = async (sender_id, variable) => {
   }
 };
 
+//delete the stored data from the redis session
+const delUserVars = async (sender) => {
+  await client.del(`${sender}`);
+};
+
+
 // delete all data from all databases in redis
 const deleteAllKeys = async () => {
   await client.flushall();
@@ -40,4 +46,5 @@ module.exports = {
   setUserVars,
   deleteAllKeys,
   getUserVars,
+  delUserVars
 };

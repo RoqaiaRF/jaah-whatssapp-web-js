@@ -1,130 +1,23 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
+const { createSession } = require("../services/session")
 
-const { body, validationResult } = require("express-validator");
-const { phoneNumberFormatter } = require("../.././helpers/formatter");
-const { Client, LocalAuth } = require("whatsapp-web.js");
-const qrcode = require("qrcode-terminal");
-const socketIO = require("socket.io");
 
-const http = require("http");
+router.post("/", async function  (req, res) {
+    if (!req.body ) {
+        return res.status(400).json({
+          status: "Bad Request",
+          message: "req body cannot be empty!",
+        });
+      }
+    else {
+      let sender = req.body.sender;
+      let receiver = req.body.receiver;
+      let message = req.body.message;
+      let description = req.body.description; 
+      await createSession (sender, description)
+      }
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
-const client = new Client({
-  restartOnAuthFail: true,
-  puppeteer: {
-    headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-accelerated-2d-canvas",
-      "--no-first-run",
-      "--no-zygote",
-      "--single-process", // <- this one doesn't works in Windows
-      "--disable-gpu",
-    ],
-  },
-  authStrategy: new LocalAuth(),
 });
 
-const initializeWhatssAppWeb = () => {
-  client.initialize();
-  console.log("initialized successfully");
-
-  //TODO: DELETE THIS WHEN RUN SOCKET
-  client.on("qr", (qr) => {
-    qrcode.generate(qr, { small: true });
-  });
-  //^--------------------------------------
-
-  // Socket IO
-  io.on("connection", function (socket) {
-    socket.emit("message", "Connecting...");
-
-    client.on("qr", (qr) => {
-      console.log("QR RECEIVED", qr);
-      qrcode.toDataURL(qr, (err, url) => {
-        socket.emit("qr", url);
-        socket.emit("message", "QR Code received, scan please!");
-      });
-    });
-
-    client.on("ready", () => {
-      socket.emit("ready", "Whatsapp is ready!");
-      socket.emit("message", "Whatsapp is ready!");
-    });
-
-    client.on("authenticated", () => {
-      socket.emit("authenticated", "Whatsapp is authenticated!");
-      socket.emit("message", "Whatsapp is authenticated!");
-      console.log("AUTHENTICATED");
-    });
-
-    client.on("auth_failure", function (session) {
-      socket.emit("message", "Auth failure, restarting...");
-    });
-
-    client.on("disconnected", (reason) => {
-      socket.emit("message", "Whatsapp is disconnected!");
-      client.destroy();
-      client.initialize();
-    });
-  });
-};
-
-// Send message
-router.post(
-  "/",
-  [body("number").notEmpty(), body("message").notEmpty()],
-  async (req, res) => {
-    const errors = validationResult(req).formatWith(({ msg }) => {
-      return msg;
-    });
-
-    if (!errors.isEmpty()) {
-      return res.status(422).json({
-        status: false,
-        message: errors.mapped(),
-      });
-    }
-    // initialize the application
-    initializeWhatssAppWeb();
-
-    const number = phoneNumberFormatter(req.body.number);
-    const message = req.body.message;
-
-    console.log(`number: ${number}, message: ${message}`);
-
-    client.on("ready", () => {
-      client
-        .sendMessage(number, message)
-        .then((response) => {
-          res.status(200).json({
-            status: true,
-            response: response,
-          });
-        })
-        .catch((err) => {
-          res.status(500).json({
-            status: false,
-            response: err,
-          });
-          console.log(err);
-        });
-    });
-  }
-);
-
 module.exports = router;
-
-/*
-  body example = 
-    {
-      number: 962799849386,
-      message: "Hello, world "
-    }
-  
- */

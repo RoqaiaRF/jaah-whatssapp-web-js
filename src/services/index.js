@@ -1,12 +1,5 @@
-var express = require("express");
-const socketIO = require('socket.io');
-const qrcode = require('qrcode');
-const http = require('http');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
 const client = new Client({
     restartOnAuthFail: true,
     puppeteer: {
